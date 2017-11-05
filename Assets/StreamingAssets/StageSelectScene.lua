@@ -21,6 +21,17 @@ function StageSelectScene.new()
 		LuaChangeScene("StageSelect", "MainCanvas")
 
 		if self.IsInitialized == false then
+			for i = 1, 16 do
+				LuaFindObject("StageSelectButton"..i)
+			end
+		end
+			
+		for i = 1, 16 do
+			if SaveObject.StageUnlockList[i] == 1 then
+				LuaSetButtonInteractable("StageSelectButton"..i, true)
+			else 
+				LuaSetButtonInteractable("StageSelectButton"..i, false)
+			end
 		end
 
 		GameManager:Instance():SetSelectStageNumber(0)
@@ -54,9 +65,12 @@ function StageSelectScene.new()
 		end
 
 		if buttonName == "StageSelectStartButton" then
-			if GameManager:Instance():GetSelectStageNumber() ~= 0 then
+			if GameManager:Instance():GetSelectStageNumber() == 1 then
 				SceneManager:Instance():ChangeScene(SceneNameEnum.Game1)
 			end
+			--if GameManager:Instance():GetSelectStageNumber() == 2 then
+			--	SceneManager:Instance():ChangeScene(SceneNameEnum.Game2)
+			--end
 		end
 	end
 	

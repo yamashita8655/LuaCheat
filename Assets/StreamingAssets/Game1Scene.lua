@@ -69,6 +69,8 @@ function Game1Scene.new()
 				"クリア！",
 				function() end,
 				function()
+					SaveObject.StageUnlockList[2] = 1
+					FileIOManager.Instance():Save()
 					SceneManager.Instance():ChangeScene(SceneNameEnum.StageSelect)
 				end
 			)
