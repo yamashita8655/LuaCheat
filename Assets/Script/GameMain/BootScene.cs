@@ -20,13 +20,6 @@ public class BootScene : MonoBehaviour {
 	[SerializeField] CanvasScaler CanvasScaler;
 	[SerializeField] Canvas MainCanvas;
 
-	[SerializeField] Button RetryButton;
-	[SerializeField] Text RetryText;
-
-	[SerializeField] GameObject InAppObject;
-	[SerializeField] GameObject LoadingObject;
-	[SerializeField] GameObject SliderObject;
-
 	string ServerVersionString = "";
 	string LocalVersionString = "";
 
@@ -44,7 +37,6 @@ public class BootScene : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		Application.targetFrameRate = 60;
-		RetryButton.gameObject.SetActive(false);
 		StartCoroutine(CoroutineStart());
 #if UNITY_EDITOR
 		Debug.logger.logEnabled = true;
@@ -74,7 +66,6 @@ public class BootScene : MonoBehaviour {
 	
 	public void CheckApplicationVersion() {
 		State = FuncState.GetApplicationVersionString;
-		RetryText.text = "アプリケーションバージョンチェック中";
 		string url = "";
 #if UNITY_EDITOR
 		url = ServerURL + "/Android";
@@ -85,17 +76,10 @@ public class BootScene : MonoBehaviour {
 #endif
 		VersionFileManager.Instance.GetApplicationVersionString(url, (string output, string error) => {
 			if (string.IsNullOrEmpty(error) == false) {
-				RetryText.text = "通信に失敗しました、通信環境がよい所で再度お試しください。";
-				RetryButton.gameObject.SetActive(true);
-				LoadingObject.gameObject.SetActive(false);
 				return;
 			}
 
 			if (AppicationVersion != int.Parse(output)) {
-				RetryText.text = "アプリケーションのバージョンが異なります。\n最新にアップデートして再起動してください。";
-				LoadingObject.gameObject.SetActive(false);
-				SliderObject.gameObject.SetActive(false);
-				RetryButton.gameObject.SetActive(true);
 			} else {
 				LoadServerVersionFile();
 			}
@@ -104,8 +88,6 @@ public class BootScene : MonoBehaviour {
 	
 	public void LoadServerVersionFile() {
 		State = FuncState.GetServerVersionString;
-		RetryText.text = "サーバーのバージョンファイル取得中";
-		LoadingObject.gameObject.SetActive(true);
 		if (UnityUtility.IsCheckVersionFile == false) {
 			// ローカルリソースから読み込み
 #if UNITY_EDITOR
@@ -124,9 +106,6 @@ public class BootScene : MonoBehaviour {
 #endif
 			VersionFileManager.Instance.GetServerVersionString(url, (string output, string error) => {
 				if (string.IsNullOrEmpty(error) == false) {
-					RetryText.text = "通信に失敗しました、通信環境がよい所で再度お試しください。";
-					RetryButton.gameObject.SetActive(true);
-					LoadingObject.gameObject.SetActive(false);
 					return;
 				}
 				
@@ -167,8 +146,6 @@ public class BootScene : MonoBehaviour {
 	}
 	
 	public void LoadLocalVersionFile() {
-		RetryText.text = "アプリのバージョンファイル取得中";
-		LoadingObject.gameObject.SetActive(true);
 		if (UnityUtility.IsCheckVersionFile == false) {
 			CheckVersionFile();
 		} else {
@@ -193,8 +170,6 @@ public class BootScene : MonoBehaviour {
 	}
 	
 	public void CheckVersionFile() {
-		RetryText.text = "バージョンチェック中";
-		LoadingObject.gameObject.SetActive(true);
 		Debug.Log("CheckVersionFile");
 		string path = "";
 #if UNITY_EDITOR
@@ -323,12 +298,15 @@ public class BootScene : MonoBehaviour {
 			LoadServerVersionFile();
 		}
 //		RetryText.text = "サーバーデータアクセス中";
-		RetryButton.gameObject.SetActive(false);
 	}
 	
 	IEnumerator LuaInit() {
 		float factor = MainCanvas.scaleFactor;
 		yield return StartCoroutine(UnityUtility.Instance.Init(factor, LocalVersionString, ServerVersionString, ExeptionHandle, EndLuaMainInit));
+//		LuaManager.Instance.Init();
+//		UnityUtility.Instance.InitLuaState("LuaMain1.lua", "Main");
+//		UnityUtility.Instance.InitLuaState("LuaMain2.lua", "Main");
+		yield return null;
 	}
 	
 	Dictionary<string, AssetBundleData> CreateVersionDataDict(string src) {
@@ -353,8 +331,6 @@ public class BootScene : MonoBehaviour {
 
 	// 例外検知して、ユーザーに伝える
 	public void ExeptionHandle(string error, int errorNumber) { 
-		InAppObject.SetActive(true);
-		RetryText.text = string.Format ("下記のエラーが発生しました。\nアプリを再起動するか、問題が解決しない場合は、\nアプリ作成者にエラー内容を送ってください。\n{0}\nerrorNumber:{1}\n\n", error, errorNumber);
 	}
 	
 	// Luaの初期化関数が終わった後のコールバック

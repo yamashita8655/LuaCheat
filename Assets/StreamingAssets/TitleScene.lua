@@ -1,27 +1,29 @@
 ﻿--直接Unityには登録しないスクリプト。いわゆる、ライブラリ化した奴
 
 -- クラス定義
-BootScene = {}
+TitleScene = {}
 
 -- コンストラクタ
-function BootScene.new()
+function TitleScene.new()
 	local this = SceneBase.new()
-
-	--this.Test = 0
 
 	-- メソッド定義
 	-- 初期化
 	this.SceneBaseInitialize = this.Initialize
 	this.Initialize = function(self)
+		--this.HpLv = 1
+		--this.WeaponLv = 1
+		--this.GuradLv = 1
+		--this.ActionCountLv = 1
+		--this.Lv = 1
+		--this.SelectEnemyIndex = 0
+		
+		LuaChangeScene("Title", "MainCanvas")
+
+		if self.IsInitialized == false then
+		end
+		
 		this:SceneBaseInitialize()
-		LuaChangeScene("Boot", "MainCanvas")
-	end
-	
-	-- 初期化
-	this.SceneBaseAfterInitialize = this.AfterInitialize
-	this.AfterInitialize = function(self)
-		this:SceneBaseAfterInitialize()
-		FileIOManager.Instance():Load(this.EndSaveFileLoadCallback)
 	end
 	
 	-- 更新
@@ -41,11 +43,11 @@ function BootScene.new()
 		return self.IsActive
 	end
 	
-	-- セーブファイル読み込み終了時コールバック処理
-	this.EndSaveFileLoadCallback = function()
-		LuaUnityDebugLog("EndSaveFileLoadCallback")
-		LuaUnityDebugLog("ChangeSceneBefore")
-		SceneManager.Instance():ChangeScene(SceneNameEnum.Title)
+	-- ボタン
+	this.OnClickButton = function(self, buttonName)
+		if buttonName == "TitleSceneStartButton" then
+			SceneManager.Instance():ChangeScene(SceneNameEnum.StageSelect)
+		end
 	end
 	
 	return this

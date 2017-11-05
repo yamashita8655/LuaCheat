@@ -17,12 +17,7 @@ end
 -- メソッド定義
 function GameManager:Initialize() 
 	self.BattleDeltaTime = 1.0/60.0
-	self.PlayerHp = 0
-	self.PlayerAttack = 0
-	self.PlayerDeffense = 0
-	self.PlayerActionCount = 0
-	
-	self.EnemyData = 0
+	self.SelectStageNumber = 0
 end
 
 -- 呼び出される毎に加算する時間
@@ -30,19 +25,13 @@ function GameManager:GetBattleDeltaTime()
 	return self.BattleDeltaTime
 end
 
-function GameManager:SetDebugBattleData(playerHp, playerAttack, playerDeffense, playerActionCount, enemyData) 
-	self.PlayerHp = playerHp
-	self.PlayerAttack = playerAttack
-	self.PlayerDeffense = playerDeffense
-	self.PlayerActionCount = playerActionCount
-	
-	self.EnemyData = enemyData
+-- 
+function GameManager:GetSelectStageNumber() 
+	return self.SelectStageNumber
 end
-function GameManager:GetDebugBattleData() 
-	return self.PlayerHp, self.PlayerAttack, self.PlayerDeffense, self.PlayerActionCount, self.EnemyData
+function GameManager:SetSelectStageNumber(stageNumber) 
+	self.SelectStageNumber = stageNumber
 end
-
-
 
 function GameManager:Update(deltaTime) 
 end

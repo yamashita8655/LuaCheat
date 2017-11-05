@@ -46,8 +46,24 @@ MoveTypeEnum = {
 
 SceneNameEnum = {
 	Boot			= 1,
-	ParameterSet	= 2,
-	DebugBattle		= 3,
+	Title			= 2,
+	StageSelect		= 3,
+	Game1			= 4,
+	Game2			= 5,
+	Game3			= 6,
+	Game4			= 7,
+	Game5			= 8,
+	Game6			= 9,
+	Game7			= 10,
+	Game8			= 11,
+	Game9			= 12,
+	Game10			= 13,
+	Game11			= 14,
+	Game12			= 15,
+	Game13			= 16,
+	Game14			= 17,
+	Game15			= 18,
+	Game16			= 19,
 }
 
 SkillTypeEnum = {

@@ -20,10 +20,27 @@ end
 -- メソッド定義
 function SceneManager:Initialize() 
 	self.CurrentScene = nil
+	self.CurrentSceneEnum = nil
 	self.SceneCacheTable = {
 		BootScene.new(),
-		ParameterSetScene.new(),
-		DebugBattleScene.new(),
+		TitleScene.new(),
+		StageSelectScene.new(),
+		Game1Scene.new(),
+		--Game2Scene.new(),
+		--Game3Scene.new(),
+		--Game4Scene.new(),
+		--Game5Scene.new(),
+		--Game6Scene.new(),
+		--Game7Scene.new(),
+		--Game8Scene.new(),
+		--Game9Scene.new(),
+		--Game10Scene.new(),
+		--Game11Scene.new(),
+		--Game12Scene.new(),
+		--Game13Scene.new(),
+		--Game14Scene.new(),
+		--Game15Scene.new(),
+		--Game16Scene.new(),
 	}
 
 	LuaLoadPrefabAfter("common", "HeaderObject", "HeaderObject", "HeaderFooterCanvas")
@@ -35,6 +52,7 @@ end
 -- シーンの切り替え
 function SceneManager:ChangeScene(sceneNameEnum) 
 	LuaUnityDebugLog("ChangeScene"..sceneNameEnum)
+	self.CurrentSceneEnum = sceneNameEnum
 	CallbackManager.Instance():AddCallback("SceneManager_CallbackStartFade", {self, sceneNameEnum}, self.CallbackFadeIn)
 	LuaPlayAnimator("FadeObject", "FadeIn", false, false, "LuaCallback", "SceneManager_CallbackStartFade")
 end
@@ -71,26 +89,10 @@ end
 
 -- ボタンイベント検知
 function SceneManager:OnClickButton(buttonName) 
-	if buttonName == "HomeButton" then
-		self:ChangeScene(SceneNameEnum.Home)
-	elseif buttonName == "CustomButton" then
-		self:ChangeScene(SceneNameEnum.Custom)
-	elseif buttonName == "QuestButton" then
-		self:ChangeScene(SceneNameEnum.Quest)
-	elseif buttonName == "OptionButton" then
-		self:ChangeScene(SceneNameEnum.Option)
-	elseif buttonName == "HomeCharacter1" then
-		-- ホームシーンで猫タッチしたら鳴かせる
-		SoundManager.Instance():PlaySE("sound", SoundManager.Instance().SENameList.SelfHit)
-	elseif buttonName == "HomeCharacter2" then
-		-- ホームシーンで猫タッチしたら鳴かせる
-		SoundManager.Instance():PlaySE("sound", SoundManager.Instance().SENameList.SelfHit)
-	elseif buttonName == "HomeCharacter3" then
-		-- ホームシーンで猫タッチしたら鳴かせる
-		SoundManager.Instance():PlaySE("sound", SoundManager.Instance().SENameList.SelfHit)
-	elseif buttonName == "HomeCharacter4" then
-		-- ホームシーンで猫タッチしたら鳴かせる
-		SoundManager.Instance():PlaySE("sound", SoundManager.Instance().SENameList.SelfHit)
+	if buttonName == "FrontMenuDetailButton" then
+		DetailDialogManager:Instance():ShowDetailDialog(self.CurrentSceneEnum, GameManager:Instance():GetSelectStageNumber())
+	elseif buttonName == "FrontMenuLuaButton" then
+	elseif buttonName == "FrontMenuExecuteButton" then
 	else
 		SoundManager.Instance():PlaySE("sound", SoundManager.Instance().SENameList.ButtonePush)
 		self.CurrentScene:OnClickButton(buttonName)

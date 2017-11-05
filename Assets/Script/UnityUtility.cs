@@ -1456,5 +1456,68 @@ public class UnityUtility : SingletonMonoBehaviour<UnityUtility> {
 	    iv = deriveBytes.GetBytes(blockSize / 8);
 	}
 
+	public void InitLuaState(string executeScriptName, string entryFunctionName) {
+		bool isLoaded = false;
+		string loadPath = "";
+		string savePath = "";
+#if UNITY_EDITOR
+		//loadPath = "file:///" + Application.streamingAssetsPath + "/" + executeScriptName;
+		loadPath = Application.streamingAssetsPath + "/" + executeScriptName;
+		savePath = Application.persistentDataPath + "/" + executeScriptName;
+#elif UNITY_ANDROID
+		if (IsUseLocalFile == true) {
+		loadPath = Application.streamingAssetsPath + "/" + executeScriptName;
+		savePath = Application.persistentDataPath + "/" + executeScriptName;
+		} else {
+		loadPath = Application.streamingAssetsPath + "/Android/" + executeScriptName;
+		savePath = Application.persistentDataPath + "/" + executeScriptName;
+		}
+#elif UNITY_IPHONE
+		if (IsUseLocalFile == true) {
+		loadPath = Application.streamingAssetsPath + "/" + executeScriptName;
+		savePath = Application.persistentDataPath + "/" + executeScriptName;
+		} else {
+		loadPath = Application.streamingAssetsPath + "/IOS/" + executeScriptName;
+		savePath = Application.persistentDataPath + "/" + executeScriptName;
+		}
+#endif
+
+		Debug.Log(loadPath+":start");
+		string output = "";
+		if (IsUseLocalFile == true) {
+#if UNITY_EDITOR
+			output = File.ReadAllText(loadPath, System.Text.Encoding.UTF8);
+#elif UNITY_ANDROID
+			WWW www = new WWW(loadPath);
+			while (www.isDone == false) {
+			yield return null;
+		}
+			output = www.text;
+#elif UNITY_IPHONE
+			output = File.ReadAllText(loadPath, System.Text.Encoding.UTF8);
+			//output = File.OpenRead(loadPath).ToString();
+#endif
+		} else {
+			output = File.ReadAllText(loadPath, System.Text.Encoding.UTF8);
+		}
+
+		// まずは、スクリプトをロードして使える状態にする
+		LuaManager.Instance.LoadLuaScript(output, executeScriptName);
+
+		// そのスクリプトにも、Unityの関数をバインドする
+		BindCommonFunction(executeScriptName);
+
+		// Lua側のメイン関数を呼び出す
+		LuaManager.FunctionData data = new LuaManager.FunctionData();
+		data.returnValueNum = 0;
+		//data.functionName = "SetUnityGameData";
+		data.functionName = entryFunctionName;
+		ArrayList list = new ArrayList();
+		//list.Add(ServerVersionString);
+
+		data.argList = list;
+		ArrayList returnList = LuaManager.Instance.Call(executeScriptName, data);
+
+	}
 }
 

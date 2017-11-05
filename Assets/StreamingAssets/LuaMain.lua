@@ -38,8 +38,24 @@ LuaFileList = {
 	"TimerCallbackManager.lua",
 	"SoundManager.lua",
 	"BootScene.lua",
-	"ParameterSetScene.lua",
-	"DebugBattleScene.lua",
+	"TitleScene.lua",
+	"StageSelectScene.lua",
+	"Game1Scene.lua",
+	--"Game2Scene.lua",
+	--"Game3Scene.lua",
+	--"Game4Scene.lua",
+	--"Game5Scene.lua",
+	--"Game6Scene.lua",
+	--"Game7Scene.lua",
+	--"Game8Scene.lua",
+	--"Game9Scene.lua",
+	--"Game10Scene.lua",
+	--"Game11Scene.lua",
+	--"Game12Scene.lua",
+	--"Game13Scene.lua",
+	--"Game14Scene.lua",
+	--"Game15Scene.lua",
+	--"Game16Scene.lua",
 	"SceneManager.lua",
 	"DialogManager.lua",
 	"ObjectBase.lua",
@@ -47,6 +63,8 @@ LuaFileList = {
 	"FileIOManager.lua",
 	"LevelParameterConfig.lua",
 	"EnemyDataConfig.lua",
+	"DetailDialogManager.lua",
+	"StageDataConfig.lua",
 }
 LuaFileLoadedCount = 0
 SaveLuaScriptIndex = 1
@@ -74,12 +92,6 @@ function LuaMain()
 --・LuaScriptセーブ
 --・LuaScriptのDoFile
 
-	LuaFindObject("InAppSlider")
-	LuaFindObject("InAppText")
-	LuaFindObject("InAppNowLoadText")
-	LuaFindObject("InAppMaxLoadText")
-	LuaFindObject("InAppRootObject")
-
 	-- Unity側では、バージョンファイルの読み込みとLuaMainの読み込み自体（このファイルその物）の実行をしてくれているので
 	-- 渡されたバージョン情報から、各種データの比較・更新を行う
 	LuaUnityDebugLog(LocalVersionString)
@@ -95,10 +107,6 @@ function LuaMain()
 			SaveAssetBundleStringList = StringSplit(ServerVersionString, "\n")
 			LuaUnityDebugLog(#SaveAssetBundleStringList)
 			SaveAssetBundleCounter = 1
-			LuaSetSliderValue("InAppSlider", SaveAssetBundleCounter)
-			LuaSetMaxSliderValue("InAppSlider", #SaveAssetBundleStringList-2)-- LuaMainとVersionは読まないデータなので、その分差し引く
-			LuaSetText("InAppNowLoadText", SaveAssetBundleCounter)
-			LuaSetText("InAppMaxLoadText", #SaveAssetBundleStringList-2)
 
 			AfterSaveAssetBundleCallback = SaveScriptFile
 			SaveAssetBundle()
@@ -171,10 +179,6 @@ function LuaMain()
 				end
 			
 				SaveAssetBundleCounter = 1
-				LuaSetSliderValue("InAppSlider", SaveAssetBundleCounter)
-				LuaSetMaxSliderValue("InAppSlider", #SaveAssetBundleStringList)-- こっちは、すでにLuaMainとVersionは除いてある
-				LuaSetText("InAppNowLoadText", SaveAssetBundleCounter)
-				LuaSetText("InAppMaxLoadText", #SaveAssetBundleStringList)
 				
 				AfterSaveAssetBundleCallback = LoadAssetBundle
 				if isUpdateLuaScript == true then
@@ -192,7 +196,6 @@ end
 
 function LoadAssetBundle()
 	LuaUnityDebugLog("LoadAssetBundle")
-	LuaSetText("InAppText", "ゲーム実行準備中")
 	if #LoadAssetBundleStringList == 0 then
 		-- LuaScriptはすでに存在しているので、DoFileを行う
 		LuaUnityDebugLog("GO:DoFileLuaScript")
@@ -228,7 +231,6 @@ function LoadAssetBundle()
 end
 
 function SaveAssetBundle()
-	LuaSetText("InAppText", "ゲーム起動に必要なデータをダウンロード中")
 
 	if #SaveAssetBundleStringList == 0 then
 		-- スクリプトファイルの生成に移る
@@ -237,10 +239,6 @@ function SaveAssetBundle()
 		--SaveScriptFile()
 
 		SaveScriptFileCounter = 1
-		LuaSetSliderValue("InAppSlider", SaveScriptFileCounter)
-		LuaSetMaxSliderValue("InAppSlider", #LuaFileList)-- LuaMainとVersionは読まないデータなので、その分差し引く
-		LuaSetText("InAppNowLoadText", SaveScriptFileCounter)
-		LuaSetText("InAppMaxLoadText", #LuaFileList)
 		AfterSaveAssetBundleCallback()
 	else
 		local params = StringSplit(SaveAssetBundleStringList[1], ",")
@@ -265,7 +263,6 @@ function SaveAssetBundle()
 end
 
 function SaveScriptFile()
-	LuaSetText("InAppText", "データセーブ中")
 	if SaveLuaScriptIndex > #LuaFileList then
 		-- dofileに入る
 		DoFileLuaScript()
@@ -315,7 +312,6 @@ end
 
 function InitGame()
 	LuaUnityDebugLog("")
-	LuaSetText("InAppText", "ゲーム実行準備完了！")
 	LuaLoadPrefabAfter("common", "FadeObject", "FadeObject", "SystemCanvas")
 	--LuaSetActive("FadeObject", false)
 	--LuaLoadPrefabAfter("common", "DebugDisplayObject", "DebugDisplayObject", "SystemCanvas")
@@ -331,6 +327,7 @@ function InitGame()
 	SceneManager.Instance():Initialize()
 	DialogManager.Instance():Initialize()
 	SoundManager.Instance():Initialize()
+	DetailDialogManager.Instance():Initialize()
 	
 	--FileIOManager.Instance():DebugDeleteSaveFile()
 	--FileIOManager.Instance():Save()
@@ -354,7 +351,6 @@ end
 
 --ローカルのLuaScriptをDoFileする
 function DoFileLuaScriptFromLocal()
-	LuaSetText("InAppText", "ゲーム実行準備中")
 	if DoFileCount <= #LuaFileList then
 		local index = DoFileCount
 		if Platform == "Editor" then
@@ -382,7 +378,6 @@ end
 
 --doFileのみを行う処理
 function DoFileLuaScript()
-	LuaSetText("InAppText", "ゲーム実行準備中")
 	if DoFileCount <= #LuaFileList then
 		local index = DoFileCount
 		dofile(PersistentDataPath.."/"..LuaFileList[index])
@@ -679,8 +674,6 @@ function SaveAssetBundleCallback(errorString)
 		LuaUnityCallExeptionCallback(errorString, 3)
 	else
 		SaveAssetBundleCounter = SaveAssetBundleCounter + 1
-		LuaSetSliderValue("InAppSlider", SaveAssetBundleCounter)
-		LuaSetText("InAppNowLoadText", SaveAssetBundleCounter)
 		SaveAssetBundle()
 	end
 end
@@ -691,8 +684,6 @@ function SaveScriptFileCallback(errorString)
 		LuaUnityCallExeptionCallback(errorString, 4)
 	else
 		SaveLuaScriptIndex = SaveLuaScriptIndex + 1
-		LuaSetSliderValue("InAppSlider", SaveLuaScriptIndex)
-		LuaSetText("InAppNowLoadText", SaveLuaScriptIndex)
 		SaveScriptFile()
 	end
 end
